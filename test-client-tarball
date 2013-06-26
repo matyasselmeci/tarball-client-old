@@ -11,27 +11,30 @@ logfile=/tmp/test_client_tarball.log
 
 do_cleanup=
 
-warn() {
-    echo "$@" 1>&2
+fatal() {
+    echo "FATAL: $@"
+    cleanup
+    exit 1
 }
 
-fatal() {
-    warn FATAL "$@"
-    if [[ $do_cleanup == true ]]; then
-        rm -rf "$test_root_dir"
+cleanup() {
+    if [[ $do_cleanup == true && -n "$real_test_root_dir" ]]; then
+        rm -rf "$real_test_root_dir"
     fi
-    exit 1
 }
 
 assert() {
     message=$1
     shift
+    echo -n "$message ... "
     output=$(eval "$@" 2>&1)
     status=$?
     if [[ $status -ne 0 ]]; then
-        warn FAIL "$message"
+        echo "FAIL"
+        printf "%s" "$output"
+    else
+        echo "ok"
     fi
-    printf "%s\n" "$output"
     return $status
 }
 
@@ -80,7 +83,7 @@ test_02_setup_sh() {
 }
 
 test_03_setup_csh() {
-    warn "XXX setup.csh tests have not been written yet"
+    echo "XXX setup.csh tests have not been written yet"
 }
 
 test_04_grid_proxy_init() {
@@ -96,13 +99,14 @@ test_05_osg_ca_manage_setupca() {
 [[ `whoami` == root ]] && fatal "This script must be run as an unprivileged user."
 
 test_root_dir=$(mktemp -d client_test_root.XXXXXX)
-echo test_root_dir="$test_root_dir"
+echo testing in $test_root_dir
+real_test_root_dir=$(readlink -f "$test_root_dir")
 do_cleanup=true
 
 [[ ! -f $tarball_file ]] && fatal "Could not find tarball $tarball_file"
-tar -C "$test_root_dir" -xzf "$tarball_file" || fatal "Could not extract tarball $tarball_file"
+tar -C "$real_test_root_dir" -xzf "$tarball_file" || fatal "Could not extract tarball $tarball_file"
 
-test_client_dir=$(readlink -f "$test_root_dir/$metapackage")
+test_client_dir=$(readlink -f "$real_test_root_dir/$metapackage")
 [[ -d $test_client_dir ]] || fatal "Expected directory $test_client_dir not found"
 
 osgrun="$test_client_dir/osgrun"
@@ -117,5 +121,5 @@ for tf in "${test_functions[@]}"; do
     $tf
 done
 
-
+cleanup
 
