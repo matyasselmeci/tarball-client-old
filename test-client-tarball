@@ -93,6 +93,12 @@ test_04_grid_proxy_init() {
 test_05_osg_ca_manage_setupca() {
     assert_osgrun "osg-ca-manage in path"                                 which osg-ca-manage
     assert_osgrun "osg-ca-manage setupCA --url osg does not return fail"  osg-ca-manage setupCA --url osg
+    (
+        shopt -s nullglob
+        cd "$test_client_dir"
+        dot0files=(etc/grid-security/certificates/*.0)
+        assert "certificates dir contains *.0 files"    [[ ${#dot0files[*]} -ge 1 ]]
+    )
 }
 
 
