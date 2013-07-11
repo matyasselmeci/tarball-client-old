@@ -1,8 +1,8 @@
 #!/bin/bash
 
-# TODO
+# TODO These shouldn't be hardcoded.
 metapackage=osg-wn-client
-version=3.1.20-1
+version=3.1.21-1
 dverarch=el6.x86_64
 tarball_file=${metapackage}-${version}.${dverarch}.tar.gz
 # v TODO
