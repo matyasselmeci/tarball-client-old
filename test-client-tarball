@@ -69,9 +69,12 @@ _assert_osg_location_in_pathvar () {
     assert "verify $1 contains dir(s) in OSG_LOCATION"    [[ \${$1} =~ "(^|/)$OSG_LOCATION(/|$)" ]]
 }
 
+
 test_02_setup_sh() {
+    cd "$test_client_dir"
+    assert "verify setup-local.sh exists"         [[ -e setup-local.sh ]]
+    echo 'export LOCAL_VAR=1' >> setup-local.sh
     (
-        cd "$test_client_dir"
         . setup.sh
         assert "verify OSG_LOCATION set"              [[ -n $OSG_LOCATION ]]
         assert "verify OSG_LOCATION is current dir"   [[ $OSG_LOCATION == $PWD ]]
@@ -87,13 +90,49 @@ test_02_setup_sh() {
         done
         assert "verify PYTHONPATH contains site-packages dir" \
             [[ $PYTHONPATH =~ "(^|/)$OSG_LOCATION/usr/lib(64)?/python2[.][4-6]/site-packages" ]]
+        assert "verify setup-local.sh sourced"        [[ -n $LOCAL_VAR ]]
     )
 }
 
 test_03_setup_csh() {
-    echo "XXX setup.csh tests have not been written yet"
+    cd "$test_client_dir"
+    assert "verify setup-local.csh exists"         [[ -e setup-local.csh ]]
+    echo 'setenv LOCAL_VAR 1' >> setup-local.csh
+
+    # This is a very crude way of reporting failure -- I just make a sentinel file.
+    rm -f __FAIL
+    cat - > test_setup.csh <<'EOF'
+source ./setup.csh
+if (! $?OSG_LOCATION) then
+    echo OSG_LOCATION not in environment >>! __FAIL
+endif
+if ($OSG_LOCATION != $PWD) then
+    echo OSG_LOCATION not current dir >>! __FAIL
+endif
+if (! $?LOCAL_VAR) then
+    echo setup-local.csh not sourced >>! __FAIL
+endif
+EOF
+    for var_to_test in \
+            LD_LIBRARY_PATH \
+            PYTHONPATH      \
+            PERL5LIB        \
+            X509_CERT_DIR   \
+            X509_VOMS_DIR   \
+            VOMS_USERCONF; do
+        echo "
+if (\$$var_to_test !~ *\${OSG_LOCATION}*) then
+    echo OSG_LOCATION not in $var_to_test >>! __FAIL
+endif
+" >> test_setup.csh
+    done
+    tcsh test_setup.csh
+    assert "setup.csh tests successful" [[ ! -e __FAIL ]]
+    [[ -e __FAIL ]] && cat __FAIL
+    rm -f __FAIL
 }
 
+# TODO Make this use vdttest user not self
 test_04_grid_proxy_init() {
     assert_osgrun "grid-proxy-init successful"    grid-proxy-init
 }
@@ -109,6 +148,21 @@ test_05_osg_ca_manage_setupca() {
     )
 }
 
+# TODO User will need to specify a vo they belong to -- unless the test is run
+# as 'vdttest', in which case we'll need a voms server set up.
+test_06_voms_proxy_init() {
+    # This is only for the full client
+    echo XXX Not implemented
+}
+
+# Globus tests are going to need the URL of a gatekeeper set up somewhere.
+test_07_globusrun_a() {
+    echo XXX Not implemented
+}
+
+test_08_globus_job_run() {
+    echo XXX Not implemented
+}
 
 [[ `whoami` == root ]] && fatal "This script must be run as an unprivileged user."
 
