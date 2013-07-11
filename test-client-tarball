@@ -54,6 +54,14 @@ test_01_osg_post_install() {
     assert "verify existence of setup.csh"            '[[ -e setup.csh ]]'
     assert "verify existence of setup.sh"             '[[ -e setup.sh ]]'
     assert "verify existence and perms of osgrun"     '[[ -x osgrun ]]'
+    rm -f setup.csh setup.sh osgrun
+
+    popd
+    assert "run osg-post-install with an argument"    '$test_client_dir/osg/osg-post-install $test_client_dir'
+    pushd $test_client_dir
+    assert "verify existence of setup.csh"            '[[ -e setup.csh ]]'
+    assert "verify existence of setup.sh"             '[[ -e setup.sh ]]'
+    assert "verify existence and perms of osgrun"     '[[ -x osgrun ]]'
     popd
 }
 
