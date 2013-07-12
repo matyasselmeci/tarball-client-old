@@ -131,7 +131,8 @@ endif
 " >> test_setup.csh
     done
     tcsh test_setup.csh
-    assert "setup.csh tests successful" [[ ! -e __FAIL ]]
+    err=$?
+    assert "setup.csh tests successful" [[ ! -e __FAIL && $err -eq 0 ]]
     [[ -e __FAIL ]] && cat __FAIL
     rm -f __FAIL
 }
