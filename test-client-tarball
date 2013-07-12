@@ -239,7 +239,7 @@ test_08_globus_job_run() {
     fi
     local testnumber
     testnumber=$RANDOM
-    assert "test globus-job-run against jobmanager" [[ $testnumber == $($osgrun globus-job-run "$gatekeeper" echo $testnumber) ]]
+    assert "test globus-job-run against jobmanager" [[ $testnumber == $($osgrun globus-job-run "$gatekeeper" /bin/echo $testnumber) ]]
 }
 
 [[ `whoami` == root ]] && fatal "This script must be run as an unprivileged user."
