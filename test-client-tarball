@@ -112,6 +112,10 @@ endif
 if (! $?LOCAL_VAR) then
     echo setup-local.csh not sourced >>! __FAIL
 endif
+# Using expr for regex matching since =~ uses globs in csh.
+if ! {expr "$PYTHONPATH" : "$OSG_LOCATION/usr/lib(64)?/python2\.[4-6]/site-packages" > /dev/null} then
+    echo PYTHONPATH does not contain site-packages dir
+endif
 EOF
     for var_to_test in \
             LD_LIBRARY_PATH \
