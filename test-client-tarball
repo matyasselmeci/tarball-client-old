@@ -9,6 +9,7 @@ tarball_file=${metapackage}-${version}.${dver}.${arch}.tar.gz
 # v TODO
 logfile=/tmp/test_client_tarball.log
 
+do_cleanup=
 
 usage() {
     cat <<END
@@ -55,7 +56,6 @@ get_options() {
 
 
 
-do_cleanup=
 
 fatal() {
     echo "FATAL: $@"
@@ -208,15 +208,28 @@ test_06_voms_proxy_init() {
         echo "This test is only of the full client."
         return 0
     fi
+    if [[ -z $voms ]]; then
+        echo "Argument --voms not set. Skipping voms-proxy-init test"
+        return 0
+    fi
+    assert_osgrun "test voms-proxy-init" voms-proxy-init -voms "$voms"
 }
 
 # Globus tests are going to need the URL of a gatekeeper set up somewhere.
 test_07_globusrun_a() {
-    echo XXX Not implemented
+    if [[ -z $gatekeeper ]]; then
+        echo 'Argument --gatekeeper not set. Skipping globusrun -a test'
+        return 0
+    fi
+    assert_osgrun "test globusrun -a against jobmanager" globusrun -a "$gatekeeper"
 }
 
 test_08_globus_job_run() {
-    echo XXX Not implemented
+    if [[ -z $gatekeeper ]]; then
+        echo 'Argument --gatekeeper not set. Skipping globus-job-run test'
+        return 0
+    fi
+    assert_osgrun "test globus-job-run against jobmanager" globus-job-run "$gatekeeper" /bin/date
 }
 
 [[ `whoami` == root ]] && fatal "This script must be run as an unprivileged user."
