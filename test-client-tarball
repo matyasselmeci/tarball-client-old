@@ -225,7 +225,7 @@ test_07_globusrun_a() {
         echo 'Argument --gatekeeper not set. Skipping globusrun -a test'
         return 0
     fi
-    assert_osgrun "test globusrun -a against jobmanager" globusrun -a "$gatekeeper"
+    assert_osgrun "test globusrun -a against jobmanager" globusrun -a -r "$gatekeeper"
 }
 
 test_08_globus_job_run() {
