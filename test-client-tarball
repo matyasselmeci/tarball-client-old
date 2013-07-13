@@ -227,7 +227,7 @@ test_07_globusrun_a() {
         echo 'Argument --gatekeeper not set. Skipping globusrun -a test'
         return 0
     fi
-    assert_osgrun "test globusrun -a against jobmanager" globusrun -a -r "$gatekeeper"
+    assert_osgrun "test globusrun -a" globusrun -a -r "$gatekeeper"
 }
 
 test_08_globus_job_run() {
@@ -241,7 +241,7 @@ test_08_globus_job_run() {
     fi
     local testnumber
     testnumber=$RANDOM
-    assert "test globus-job-run against jobmanager" [[ $testnumber == $($osgrun globus-job-run "$gatekeeper" /bin/echo $testnumber) ]]
+    assert "test globus-job-run" [[ $testnumber == $($osgrun globus-job-run "$gatekeeper" /bin/echo $testnumber) ]]
 }
 
 test_09_srm_ping() {
