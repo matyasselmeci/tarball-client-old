@@ -22,6 +22,7 @@ usage() {
             -a|--arch           -- The architecture, either 'i386' or 'x86_64'
             -V|--voms           -- The VOMS group you want to use
             -g|--gatekeeper     -- The Globus Gatekeeper to run jobs against
+            -s|--srm            -- SRM service URL to use
             -h|--help           -- Display this usage message and exit.
 END
 }
@@ -43,6 +44,7 @@ get_options() {
             (-a|--arch) export arch=$2; shift 2;;
             (-V|--voms) export voms=$2; shift 2;;
             (-g|--gatekeeper) export gatekeeper=$2; shift 2;;
+            (-s|--srm) export srm=$2; shift 2;;
             (-h|--help) usage; exit 0;;
             (--) shift; break;;
             (*) die_with_usage "Error parsing arguments";;
@@ -240,6 +242,14 @@ test_08_globus_job_run() {
     local testnumber
     testnumber=$RANDOM
     assert "test globus-job-run against jobmanager" [[ $testnumber == $($osgrun globus-job-run "$gatekeeper" /bin/echo $testnumber) ]]
+}
+
+test_09_srm_ping() {
+    if [[ -z $srm ]]; then
+        echo 'Argument --srm not set. Skipping srm-ping test'
+        return 0
+    fi
+    assert_osgrun "test srm-ping" srm-ping $srm
 }
 
 [[ `whoami` == root ]] && fatal "This script must be run as an unprivileged user."
