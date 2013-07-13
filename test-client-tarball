@@ -1,27 +1,22 @@
 #!/bin/bash
 
-# TODO These shouldn't be hardcoded.
-metapackage=osg-wn-client
-version=3.1.21-1
-dver=el6
-arch=x86_64
-tarball_file=${metapackage}-${version}.${dver}.${arch}.tar.gz
-# v TODO
-logfile=/tmp/test_client_tarball.log
+# Arguments
+declare metapackage version dver arch voms gatekeeper srm
 
-do_cleanup=
+declare tarball
+declare do_cleanup
 
 usage() {
     cat <<END
-        Usage: ${0##*/} -m METAPACKAGE -v VERSION -d DVER -a ARCH [others]
+        Usage: ${0##*/} -m METAPACKAGE -v VERSION [-d DVER] [-a ARCH] [others]
 
         Options:
             -m|--metapackage    -- Either osg-client or osg-wn-client
-            -v|--version        -- The version-release of the tarball, e.g. 3.1.21-1
-            -d|--dver           -- The distro version, either 'el5' or 'el6'
-            -a|--arch           -- The architecture, either 'i386' or 'x86_64'
-            -V|--voms           -- The VOMS group you want to use
-            -g|--gatekeeper     -- The Globus Gatekeeper to run jobs against
+            -v|--version        -- version-release of the tarball, e.g. 3.1.21-1
+            -d|--dver           -- Either 'el5' or 'el6'
+            -a|--arch           -- Either 'i386' or 'x86_64'
+            -V|--voms           -- VOMS group to use for voms-proxy-init
+            -g|--gatekeeper     -- Contact string of the Globus Gatekeeper to run jobs against
             -s|--srm            -- SRM service URL to use
             -h|--help           -- Display this usage message and exit.
 END
@@ -50,6 +45,20 @@ get_options() {
             (*) die_with_usage "Error parsing arguments";;
         esac
     done
+
+    # If arch/dver not specified, use system.
+    [[ -z $arch ]] && {
+        export arch=`uname -p`
+    }
+    [[ -z $dver ]] && {
+        if grep -q 'release 6' /etc/redhat-release; then
+            export dver=el6
+        else
+            export dver=el5
+        fi
+    }
+    [[ -z $metapackage ]] && die_with_usage "Metapackage not specified"
+    [[ -z $version ]] && die_with_usage "Version not specified"
 
     tarball_file=${metapackage}-${version}.${dver}.${arch}.tar.gz
     export tarball_file
