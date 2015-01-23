@@ -29,6 +29,7 @@ def install_packages(stage_dir, packages, osgver, dver, basearch, prerelease=Fal
         real_newdir = os.path.join(real_stage_dir, newdir)
         if not os.path.isdir(real_newdir):
             os.makedirs(real_newdir)
+        os.chmod(real_newdir, 01777)
 
     yum = yumconf.YumConfig(osgver, dver, basearch, prerelease=prerelease)
     try:
