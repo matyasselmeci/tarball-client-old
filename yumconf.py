@@ -164,6 +164,24 @@ class YumConfig(object):
         return subprocess.call(cmd)
 
 
+    def strace_install(self, installroot, packages):
+        if not installroot:
+            raise ValueError("'installroot' empty")
+        if not packages:
+            raise ValueError("'packages' empty")
+        if type(packages) is types.StringType:
+            packages = [packages]
+
+        cmd = ["/cloud/login/matyas/bin/utils/super-strace", "yum", "install",
+               "-y",
+               "--installroot", installroot,
+               "-c", self.conf_file.name,
+               "--nogpgcheck"] + \
+              self.repo_args
+        cmd += packages
+        return subprocess.call(cmd)
+
+
     def fake_install(self, installroot, packages):
         if not installroot:
             raise ValueError("'installroot' empty")
