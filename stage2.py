@@ -32,8 +32,6 @@ def install_packages(stage_dir, packages, osgver, dver, basearch, prerelease=Fal
         os.chmod(real_newdir, 01777)
 
     yum = yumconf.YumConfig(osgver, dver, basearch, prerelease=prerelease)
-    subprocess.call(['rpm', '--root', real_stage_dir, '-ev', '--nodeps', 'bash', 'filesystem', 'coreutils'])
-    yum.install(installroot=real_stage_dir, packages=['bash', 'filesystem', 'coreutils'])
     try:
         statusmsg("Installing packages. Ignore POSTIN scriptlet failures.")
         yum.install(installroot=real_stage_dir, packages=packages)
