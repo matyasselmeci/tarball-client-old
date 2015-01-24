@@ -25,7 +25,41 @@ from common import statusmsg, errormsg
 # not always present. For example, EL5 doesn't have java-1.5.0-gcj, and EL6
 # doesn't have java-1.4.2-gcj-compat. That's OK to ignore.
 
-STAGE1_PACKAGES = [
+CORE_PACKAGES = [
+    'acl',
+    'attr',
+    'audit',
+    'basesystem',
+    'bash',
+    'coreutils',
+    'cpio',
+    'cronie',
+    'dhclient',
+    'e2fsprogs',
+    'filesystem',
+    'glibc',
+    'initscripts',
+    'iproute',
+    'iptables',
+    'iptables-ipv6',
+    'iputils',
+    'kbd',
+    'ncurses',
+    'passwd',
+    'policycoreutils',
+    'procps',
+    'rootfiles',
+    'rpm',
+    'rsyslog',
+    'selinux-policy-targeted',
+    'setup',
+    'shadow-utils',
+    'sudo',
+    'util-linux-ng',
+    'vim-minimal',
+    'yum',
+]
+STAGE1_PACKAGES = CORE_PACKAGES + [
     'e2fsprogs',
     'java-1.4.2-gcj-compat',
     'java-1.5.0-gcj',
