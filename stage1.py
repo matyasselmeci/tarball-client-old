@@ -26,35 +26,33 @@ from common import statusmsg, errormsg
 # doesn't have java-1.4.2-gcj-compat. That's OK to ignore.
 
 STAGE1_PACKAGES = [
-#    '@core',
-#    '@base',
-#    'e2fsprogs',
-#    'java-1.4.2-gcj-compat',
-#    'java-1.5.0-gcj',
-#    'java-1.6.0-openjdk',
-#    'java-1.7.0-openjdk',
-#    'java-1.7.0-openjdk-devel',
-#    'kernel',
-#    'info',
-#    'openldap-clients',
-#    'perl',
-#    'rpm',  # you would THINK this would be in @core, but in some places it isn't
-#    'wget',
-#    'yum',  # see rpm
-#    'zip',
-#    # X libraries
-#    'libXau',
-#    'libXdmcp',
-#    'libX11',
-#    'libXext',
-#    'libXfixes',
-#    'libXi',
-#    'libXtst',
-#    'libXft',
-#    'libXrender',
-#    'libXrandr',
-#    'libXcursor',
-#    'libXinerama',
+    'e2fsprogs',
+    'java-1.4.2-gcj-compat',
+    'java-1.5.0-gcj',
+    'java-1.6.0-openjdk',
+    'java-1.7.0-openjdk',
+    'java-1.7.0-openjdk-devel',
+    'kernel',
+    'info',
+    'openldap-clients',
+    'perl',
+    'rpm',  # you would THINK this would be in @core, but in some places it isn't
+    'wget',
+    'yum',  # see rpm
+    'zip',
+    # X libraries
+    'libXau',
+    'libXdmcp',
+    'libX11',
+    'libXext',
+    'libXfixes',
+    'libXi',
+    'libXtst',
+    'libXft',
+    'libXrender',
+    'libXrandr',
+    'libXcursor',
+    'libXinerama',
 ]
 
 
@@ -91,9 +89,9 @@ def init_stage1_rpmdb(stage_dir, osgver, dver, basearch):
     yum = yumconf.YumConfig(osgver, dver, basearch)
     try:
         yum.yum_clean()
-        err2 = yum.fake_install(installroot=stage1_root, packages=STAGE1_PACKAGES)
-        if err2:
-            raise Error("Could not fake-install %r packages into %r (yum process returned %d)" % (STAGE1_PACKAGES, stage1_root, err2))
+#        err2 = yum.fake_install(installroot=stage1_root, packages=STAGE1_PACKAGES)
+#        if err2:
+#            raise Error("Could not fake-install %r packages into %r (yum process returned %d)" % (STAGE1_PACKAGES, stage1_root, err2))
     finally:
         del yum
 

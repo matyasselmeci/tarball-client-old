@@ -10,6 +10,7 @@ import types
 
 import envsetup
 import yumconf
+import stage1
 
 from common import statusmsg, errormsg
 
@@ -238,6 +239,9 @@ def make_stage2_tarball(stage_dir, packages, tarball, patch_dirs, post_scripts_d
     _statusmsg("Making stage2 tarball in %r" % stage_dir)
 
     try:
+        _statusmsg("Installing base packages")
+        install_packages(stage_dir, stage1.STAGE1_PACKAGES, osgver, dver, basearch, prerelease=prerelease)
+
         _statusmsg("Installing packages %r" % packages)
         install_packages(stage_dir, packages, osgver, dver, basearch, prerelease=prerelease)
 
