@@ -26,35 +26,35 @@ from common import statusmsg, errormsg
 # doesn't have java-1.4.2-gcj-compat. That's OK to ignore.
 
 STAGE1_PACKAGES = [
-    '@core',
-    '@base',
-    'e2fsprogs',
-    'java-1.4.2-gcj-compat',
-    'java-1.5.0-gcj',
-    'java-1.6.0-openjdk',
-    'java-1.7.0-openjdk',
-    'java-1.7.0-openjdk-devel',
-    'kernel',
-    'info',
-    'openldap-clients',
-    'perl',
-    'rpm',  # you would THINK this would be in @core, but in some places it isn't
-    'wget',
-    'yum',  # see rpm
-    'zip',
-    # X libraries
-    'libXau',
-    'libXdmcp',
-    'libX11',
-    'libXext',
-    'libXfixes',
-    'libXi',
-    'libXtst',
-    'libXft',
-    'libXrender',
-    'libXrandr',
-    'libXcursor',
-    'libXinerama',
+#    '@core',
+#    '@base',
+#    'e2fsprogs',
+#    'java-1.4.2-gcj-compat',
+#    'java-1.5.0-gcj',
+#    'java-1.6.0-openjdk',
+#    'java-1.7.0-openjdk',
+#    'java-1.7.0-openjdk-devel',
+#    'kernel',
+#    'info',
+#    'openldap-clients',
+#    'perl',
+#    'rpm',  # you would THINK this would be in @core, but in some places it isn't
+#    'wget',
+#    'yum',  # see rpm
+#    'zip',
+#    # X libraries
+#    'libXau',
+#    'libXdmcp',
+#    'libX11',
+#    'libXext',
+#    'libXfixes',
+#    'libXi',
+#    'libXtst',
+#    'libXft',
+#    'libXrender',
+#    'libXrandr',
+#    'libXcursor',
+#    'libXinerama',
 ]
 
 
@@ -103,6 +103,7 @@ def verify_stage1_dir(stage_dir):
     software into.
 
     """
+    return
     if not os.path.isdir(stage_dir):
         raise Error("Stage 1 directory (%r) missing" % stage_dir)
 
