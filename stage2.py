@@ -36,7 +36,7 @@ def install_packages(stage_dir, packages, osgver, dver, basearch, prerelease=Fal
     try:
         statusmsg("Installing packages. Ignore POSTIN scriptlet failures.")
         yum.install(installroot=real_stage_dir, packages=packages)
-        yum.nodeps_install(installroot=real_stage_dir, packages=['voms-clients'])
+        yum.noscripts_install(installroot=real_stage_dir, packages=['voms-clients'])
     finally:
         del yum
 

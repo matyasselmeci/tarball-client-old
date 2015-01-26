@@ -182,7 +182,7 @@ class YumConfig(object):
         return subprocess.call(cmd)
 
 
-    def nodeps_install(self, installroot, packages):
+    def noscripts_install(self, installroot, packages):
         if not installroot:
             raise ValueError("'installroot' empty")
         if not packages:
@@ -209,8 +209,7 @@ class YumConfig(object):
             cmd2 = ["rpm",
                     "--install",
                     "--verbose",
-                    "--force",
-                    "--nodeps",
+                    "--noscripts",
                     "--root", installroot]
             cmd2 += rpms
             return subprocess.call(cmd2)
