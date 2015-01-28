@@ -29,13 +29,21 @@ def install_packages(stage_dir, packages, osgver, dver, basearch, prerelease=Fal
         real_newdir = os.path.join(real_stage_dir, newdir)
         if not os.path.isdir(real_newdir):
             os.makedirs(real_newdir)
-
-    yum = yumconf.YumConfig(osgver, dver, basearch, prerelease=prerelease)
+    # Mount /proc inside the chroot
+    procdir = os.path.join(real_stage_dir, 'proc')
+    if not os.path.isdir(procdir): os.makedirs(procdir)
+    err = subprocess.call(['mount' , '-t', 'proc', 'proc', procdir])
     try:
-        statusmsg("Installing packages. Ignore POSTIN scriptlet failures.")
-        yum.install(installroot=real_stage_dir, packages=packages)
+
+        yum = yumconf.YumConfig(osgver, dver, basearch, prerelease=prerelease)
+        try:
+            statusmsg("Installing packages. Ignore POSTIN scriptlet failures.")
+            yum.install(installroot=real_stage_dir, packages=packages)
+        finally:
+            del yum
+
     finally:
-        del yum
+        subprocess.call(['umount', procdir])
 
     # Don't use return code to check for error.  Yum is going to fail due to
     # scriptlets failing (which we can't really do anything about), but not
@@ -168,6 +176,13 @@ def copy_osg_post_scripts(stage_dir, post_scripts_dir, dver, basearch):
         raise Error("unable to create environment script templates (setup.csh.in, setup.sh.in): %s" % str(err))
 
 
+def _write_exclude_list(stage1_filelist_path, exclude_list_path, prepend_dir):
+    assert stage1_filelist_path != exclude_list_path
+    with open(stage1_filelist_path, 'r') as in_fh:
+        with open(exclude_list_path, 'w') as out_fh:
+            for line in in_fh:
+                out_fh.write(os.path.join(prepend_dir, line.lstrip('./')))
+
 
 def tar_stage_dir(stage_dir, tarball):
     """tar up the stage_dir
@@ -183,15 +198,22 @@ def tar_stage_dir(stage_dir, tarball):
                 "var/cache/yum/*",
                 "var/lib/rpm/*",
                 "var/lib/yum/*",
-                "var/tmp/*"]
+                "var/tmp/*",
+                "dev/*",
+                "proc/*"]
 
     cmd = ["tar", "-C", stage_dir_parent, "-czf", tarball_abs, stage_dir_base]
     cmd.extend(["--exclude=" + x for x in excludes])
 
+    stage1_filelist = os.path.join(stage_dir_abs, 'stage1_filelist')
+    if os.path.isfile(stage1_filelist):
+        exclude_list = os.path.join(stage_dir_abs, 'exclude_list')
+        _write_exclude_list(stage1_filelist, exclude_list, stage_dir_base)
+        cmd.append('--exclude-from=%s' % exclude_list)
+
     err = subprocess.call(cmd)
     if err:
         raise Error("unable to create tarball (%r) from stage 2 dir (%r)" % (tarball_abs, stage_dir_abs))
-
 
 
 def fix_broken_cog_axis_symlink(stage_dir):
