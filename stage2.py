@@ -5,6 +5,7 @@ import re
 import shutil
 import subprocess
 import sys
+import tempfile
 import types
 
 
@@ -252,6 +253,32 @@ def create_fetch_crl_symlinks(stage_dir, dver):
         _safe_symlink('fetch-crl.8.gz', os.path.join(stage_dir_abs, 'usr/share/man/man8/fetch-crl3.8.gz'))
 
 
+def safe_makedirs(path):
+    try:
+        os.makedirs(path)
+    except OSError as e:
+        if e.errno == 17: # already exists
+            pass
+
+def remove_empty_dirs_from_tarball(tarball, topdir):
+    tarball_abs = os.path.abspath(tarball)
+    tarball_base = os.path.basename(tarball)
+    extract_dir = tempfile.mkdtemp()
+    oldcwd = os.getcwd()
+    try:
+        os.chdir(extract_dir)
+        subprocess.check_call(['tar', '-xzf', tarball_abs])
+        subprocess.call(['find', topdir, '-type', 'd', '-empty', '-delete'])
+        # hack to preserve these directories
+        safe_makedirs(os.path.join(topdir, 'var/lib/osg-ca-certs'))
+        safe_makedirs(os.path.join(topdir, 'etc/fetch-crl.d'))
+        subprocess.check_call(['tar', '-czf', tarball_base, topdir])
+        shutil.copy(tarball_base, tarball_abs)
+    finally:
+        os.chdir(oldcwd)
+        shutil.rmtree(extract_dir)
+
+
 def make_stage2_tarball(stage_dir, packages, tarball, patch_dirs, post_scripts_dir, osgver, dver, basearch, relnum=0, prerelease=False):
     def _statusmsg(msg):
         statusmsg("[%r,%r]: %s" % (dver, basearch, msg))
@@ -287,6 +314,9 @@ def make_stage2_tarball(stage_dir, packages, tarball, patch_dirs, post_scripts_d
 
         _statusmsg("Creating tarball %r" % tarball)
         tar_stage_dir(stage_dir, tarball)
+
+        _statusmsg("Removing empty dirs from tarball")
+        remove_empty_dirs_from_tarball(tarball, os.path.basename(stage_dir))
 
         return True
     except Error, err:
