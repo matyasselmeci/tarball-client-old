@@ -1,4 +1,5 @@
 #!/usr/bin/env python
+from __future__ import print_function
 import glob
 import os
 import re
@@ -203,6 +204,8 @@ def tar_stage_dir(stage_dir, tarball):
                 "dev/*",
                 "proc/*",
                 "etc/rc.d/rc?.d",
+                "etc/alternatives",
+                "var/lib/alternatives",
                 "usr/bin/[[]",
                 "usr/share/man/man1/[[].1.gz"]
 
@@ -254,6 +257,31 @@ def create_fetch_crl_symlinks(stage_dir, dver):
         _safe_symlink('fetch-crl.conf', os.path.join(stage_dir_abs, 'etc/fetch-crl3.conf'))
         _safe_symlink('fetch-crl', os.path.join(stage_dir_abs, 'usr/sbin/fetch-crl3'))
         _safe_symlink('fetch-crl.8.gz', os.path.join(stage_dir_abs, 'usr/share/man/man8/fetch-crl3.8.gz'))
+
+
+def fix_alternatives_symlinks(stage_dir):
+    stage_dir_abs = os.path.abspath(stage_dir)
+
+    for root, dirs, files in os.walk(os.path.join(stage_dir_abs, 'usr')):
+        for afile in files:
+            afilepath = os.path.join(root, afile)
+            if not os.path.islink(afilepath):
+                continue
+            linkpath = os.readlink(afilepath)
+            if not linkpath.startswith('/etc/alternatives'):
+                continue
+            stage_linkpath = os.path.join(stage_dir_abs, linkpath.lstrip('/'))
+            if not os.path.islink(stage_linkpath):
+                print("broken symlink to alternatives? {0} -> {1}".format(afilepath, stage_linkpath))
+                continue
+            alternatives_linkpath = os.readlink(stage_linkpath)
+            stage_alternatives_linkpath = os.path.join(stage_dir_abs, alternatives_linkpath.lstrip('/'))
+            if not os.path.exists(stage_alternatives_linkpath):
+                print("broken symlink from alternatives? {0} -> {1}".format(stage_linkpath, stage_alternatives_linkpath))
+                continue
+            new_linkpath = os.path.relpath(stage_alternatives_linkpath, start=os.path.dirname(afilepath))
+            os.unlink(afilepath)
+            os.symlink(new_linkpath, afilepath)
 
 
 def safe_makedirs(path):
@@ -308,6 +336,9 @@ def make_stage2_tarball(stage_dir, packages, tarball, patch_dirs, post_scripts_d
 
         _statusmsg("Fixing broken cog-axis jar symlink")
         fix_broken_cog_axis_symlink(stage_dir)
+
+        _statusmsg("Fixing broken /etc/alternatives symlinks")
+        fix_alternatives_symlinks(stage_dir)
 
         _statusmsg("Creating fetch-crl symlinks")
         create_fetch_crl_symlinks(stage_dir, dver)
