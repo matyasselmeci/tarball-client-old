@@ -201,14 +201,17 @@ def tar_stage_dir(stage_dir, tarball):
                 "var/lib/yum/*",
                 "var/tmp/*",
                 "dev/*",
-                "proc/*"]
+                "proc/*",
+                "etc/rc.d/rc?.d",
+                "usr/bin/[[]",
+                "usr/share/man/man1/[[].1.gz"]
 
     cmd = ["tar", "-C", stage_dir_parent, "-czf", tarball_abs, stage_dir_base]
     cmd.extend(["--exclude=" + x for x in excludes])
 
     stage1_filelist = os.path.join(stage_dir_abs, 'stage1_filelist')
     if os.path.isfile(stage1_filelist):
-        exclude_list = os.path.join(stage_dir_abs, 'exclude_list')
+        exclude_list = os.path.join(stage_dir_parent, 'exclude_list')
         _write_exclude_list(stage1_filelist, exclude_list, stage_dir_base)
         cmd.append('--exclude-from=%s' % exclude_list)
 
