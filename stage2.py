@@ -284,6 +284,10 @@ def fix_alternatives_symlinks(stage_dir):
             os.symlink(new_linkpath, afilepath)
 
 
+def fix_permissions(stage_dir):
+    return subprocess.call(['chmod', '-R', 'u+rwX', stage_dir])
+
+
 def safe_makedirs(path):
     try:
         os.makedirs(path)
@@ -345,6 +349,9 @@ def make_stage2_tarball(stage_dir, packages, tarball, patch_dirs, post_scripts_d
 
         _statusmsg("Copying OSG scripts from %r" % post_scripts_dir)
         copy_osg_post_scripts(stage_dir, post_scripts_dir, dver, basearch)
+
+        _statusmsg("Fixing permissions")
+        fix_permissions(stage_dir)
 
         _statusmsg("Creating tarball %r" % tarball)
         tar_stage_dir(stage_dir, tarball)
