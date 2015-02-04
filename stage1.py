@@ -134,34 +134,6 @@ def install_stage1_packages(stage1_root, osgver, dver, basearch):
         common.umount_proc_in_stage_dir(stage1_root)
 
 
-def verify_stage1_dir(stage_dir):
-    """Verify the stage_dir is usable as a base to install the rest of the
-    software into.
-
-    """
-    if not os.path.isdir(stage_dir):
-        raise Error("Stage 1 directory (%r) missing" % stage_dir)
-
-    rpmdb_dir = os.path.join(stage_dir, "var/lib/rpm")
-    if not os.path.isdir(rpmdb_dir):
-        raise Error("RPM database directory (%r) missing" % rpmdb_dir)
-
-    # Not an exhaustive verification (there are more files than these)
-    if not (glob.glob(os.path.join(rpmdb_dir, "__db.*")) or    # el5-style rpmdb
-            glob.glob(os.path.join(rpmdb_dir, "Packages"))):   # el6-style rpmdb (partial)
-        raise Error("RPM database files (__db.* or Packages) missing from %r" % rpmdb_dir)
-
-    # Checking every package fake-installed is overkill for this; do spot check instead
-    fnull = open(os.devnull, "w")
-    try:
-        for pkg in ['bash', 'coreutils', 'filesystem', 'rpm']:
-            err = subprocess.call(["rpm", "-q", "--root", os.path.realpath(stage_dir), pkg], stdout=fnull)
-            if err:
-                raise Error("Package entry for %r not in rpmdb" % pkg)
-    finally:
-        fnull.close()
-
-
 def make_stage1_filelist(stage_dir):
     oldwd = os.getcwd()
     try:
@@ -189,9 +161,6 @@ def make_stage1_dir(stage_dir, osgver, dver, basearch):
 
         _statusmsg("Installing stage 1 packages")
         install_stage1_packages(stage1_root, osgver, dver, basearch)
-
-        _statusmsg("Verifying")
-        verify_stage1_dir(stage_dir)
 
         _statusmsg("Making file list")
         make_stage1_filelist(stage_dir)
