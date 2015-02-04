@@ -197,7 +197,9 @@ class YumConfig(object):
                     "--justdb",
                     "--root", installroot]
             cmd2 += rpms
-            return subprocess.call(cmd2)
+            env = os.environ.copy()
+            env.update({'LANG': 'C', 'LC_ALL': 'C'})
+            return subprocess.call(cmd2, env=env)
         finally:
             shutil.rmtree(rpm_dir, ignore_errors=True)
 
