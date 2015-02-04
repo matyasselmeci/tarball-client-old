@@ -1,4 +1,3 @@
-#!/usr/bin/env python
 """
 Make a "stage 1" directory for the non-root client.
 
@@ -169,18 +168,3 @@ def make_stage1_dir(stage_dir, osgver, dver, basearch):
     except Error, err:
         errormsg(str(err))
         return False
-
-
-def main(argv):
-    if len(argv) != 5:
-        print "Usage: %s <output_directory> <3.1|3.2> <el5|el6> <i386|x86_64>" % os.path.basename(argv[0])
-        return 2
-
-    if not make_stage1_dir(*argv[1:5]):
-        return 1
-
-    return 0
-
-if __name__ == "__main__":
-    sys.exit(main(sys.argv))
-

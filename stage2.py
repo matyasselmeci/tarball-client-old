@@ -1,4 +1,3 @@
-#!/usr/bin/env python
 from __future__ import print_function
 import glob
 import os
@@ -347,26 +346,3 @@ def make_stage2_tarball(stage_dir, packages, tarball, patch_dirs, post_scripts_d
         return True
     except Error, err:
         errormsg(str(err))
-
-
-def main(argv):
-    # This main function was for initial testing, which is why it's light on
-    # checking.
-    stage_dir = argv[1]
-    metapackage = argv[2]
-    osgver = argv[3]
-    dver = argv[4]
-    basearch = argv[5]
-    tarball = "%s-%s-%s-nonroot.tar.gz" % (metapackage, dver, basearch)
-    patch_dirs = [os.path.join(os.path.dirname(argv[0]), "patches/wn-client")]
-    if "osg-client" == metapackage:
-        patch_dirs.append(os.path.join(os.path.dirname(argv[0]), "patches/full-client"))
-    post_scripts_dir = os.path.join(os.path.dirname(argv[0]), "post-install")
-
-    if not make_stage2_tarball(stage_dir, ['osg-ca-scripts', metapackage], tarball, patch_dirs, post_scripts_dir, osgver, dver, basearch):
-        return 1
-
-    return 0
-
-if __name__ == "__main__":
-    sys.exit(main(sys.argv))
