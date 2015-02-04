@@ -20,7 +20,7 @@ import sys
 
 
 import yumconf
-from common import statusmsg, errormsg
+from common import statusmsg, errormsg, safe_makedirs
 
 # The list of packages to "install" into the stage 1 dir.  Some of these are
 # not always present. For example, EL5 doesn't have java-1.5.0-gcj, and EL6
@@ -96,13 +96,6 @@ def init_stage1_devices(stage1_root):
         err = subprocess.call(['MAKEDEV', '-d', devdir, '-D', devdir, '-v', device])
     if err:
         raise Error("Could not run MAKEDEV into %r (process returned %d)" % (stage1_root, err))
-
-
-def safe_makedirs(newdir):
-    try:
-        os.makedirs(newdir)
-    except OSError, e:
-        if e.errno == 17: pass # dir already exists
 
 
 def _install_stage1_packages(yum, dver, stage1_root):

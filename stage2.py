@@ -13,7 +13,7 @@ import types
 import envsetup
 import yumconf
 
-from common import statusmsg, errormsg
+from common import statusmsg, errormsg, safe_makedirs, safe_symlink
 
 
 class Error(Exception):
@@ -29,8 +29,8 @@ def install_packages(stage_dir, packages, osgver, dver, basearch, prerelease=Fal
     real_stage_dir = os.path.realpath(stage_dir)
     for newdir in ["tmp", "var/tmp"]:
         real_newdir = os.path.join(real_stage_dir, newdir)
-        if not os.path.isdir(real_newdir):
-            os.makedirs(real_newdir)
+        safe_makedirs(real_newdir)
+
     # Mount /proc inside the chroot
     procdir = os.path.join(real_stage_dir, 'proc')
     if not os.path.isdir(procdir): os.makedirs(procdir)
@@ -144,8 +144,7 @@ def fix_gsissh_config_dir(stage_dir):
 
     try:
         usr_etc = os.path.join(stage_dir_abs, 'usr/etc')
-        if not os.path.isdir(usr_etc):
-            os.makedirs(usr_etc)
+        safe_makedirs(usr_etc)
         os.symlink('../../etc/gsissh', os.path.join(usr_etc, 'ssh'))
     except EnvironmentError, err:
         raise Error("unable to fix gsissh config dir: %s" % str(err))
@@ -160,8 +159,7 @@ def copy_osg_post_scripts(stage_dir, post_scripts_dir, dver, basearch):
     post_scripts_dir_abs = os.path.abspath(post_scripts_dir)
     stage_dir_abs = os.path.abspath(stage_dir)
     dest_dir = os.path.join(stage_dir_abs, "osg")
-    if not os.path.isdir(dest_dir):
-        os.makedirs(dest_dir)
+    safe_makedirs(dest_dir)
 
     for script_name in 'osg-post-install', 'osgrun.in':
         script_path = os.path.join(post_scripts_dir_abs, script_name)
@@ -243,20 +241,16 @@ def create_fetch_crl_symlinks(stage_dir, dver):
     to reduce confusion.
 
     """
-    def _safe_symlink(src, dst):
-        if not os.path.exists(dst):
-            os.symlink(src, dst)
-
     stage_dir_abs = os.path.abspath(stage_dir)
 
     if 'el5' == dver:
-        _safe_symlink('fetch-crl3.conf', os.path.join(stage_dir_abs, 'etc/fetch-crl.conf'))
-        _safe_symlink('fetch-crl3', os.path.join(stage_dir_abs, 'usr/sbin/fetch-crl'))
-        _safe_symlink('fetch-crl3.8.gz', os.path.join(stage_dir_abs, 'usr/share/man/man8/fetch-crl.8.gz'))
+        safe_symlink('fetch-crl3.conf', os.path.join(stage_dir_abs, 'etc/fetch-crl.conf'))
+        safe_symlink('fetch-crl3', os.path.join(stage_dir_abs, 'usr/sbin/fetch-crl'))
+        safe_symlink('fetch-crl3.8.gz', os.path.join(stage_dir_abs, 'usr/share/man/man8/fetch-crl.8.gz'))
     elif 'el6' == dver:
-        _safe_symlink('fetch-crl.conf', os.path.join(stage_dir_abs, 'etc/fetch-crl3.conf'))
-        _safe_symlink('fetch-crl', os.path.join(stage_dir_abs, 'usr/sbin/fetch-crl3'))
-        _safe_symlink('fetch-crl.8.gz', os.path.join(stage_dir_abs, 'usr/share/man/man8/fetch-crl3.8.gz'))
+        safe_symlink('fetch-crl.conf', os.path.join(stage_dir_abs, 'etc/fetch-crl3.conf'))
+        safe_symlink('fetch-crl', os.path.join(stage_dir_abs, 'usr/sbin/fetch-crl3'))
+        safe_symlink('fetch-crl.8.gz', os.path.join(stage_dir_abs, 'usr/share/man/man8/fetch-crl3.8.gz'))
 
 
 def fix_alternatives_symlinks(stage_dir):
@@ -287,13 +281,6 @@ def fix_alternatives_symlinks(stage_dir):
 def fix_permissions(stage_dir):
     return subprocess.call(['chmod', '-R', 'u+rwX', stage_dir])
 
-
-def safe_makedirs(path):
-    try:
-        os.makedirs(path)
-    except OSError as e:
-        if e.errno == 17: # already exists
-            pass
 
 def remove_empty_dirs_from_tarball(tarball, topdir):
     tarball_abs = os.path.abspath(tarball)
