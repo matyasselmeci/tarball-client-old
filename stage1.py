@@ -20,6 +20,7 @@ import sys
 
 
 import yumconf
+import common
 from common import statusmsg, errormsg, safe_makedirs
 
 # The list of packages to "install" into the stage 1 dir.  Some of these are
@@ -122,9 +123,7 @@ def _install_stage1_packages(yum, dver, stage1_root):
 
 
 def install_stage1_packages(stage1_root, osgver, dver, basearch):
-    procdir = opj(stage1_root, 'proc')
-    os.makedirs(procdir)
-    err = subprocess.call(['mount' , '-t', 'proc', 'proc', procdir])
+    common.mount_proc_in_stage_dir(stage1_root)
     try:
         yum = yumconf.YumConfig(osgver, dver, basearch)
         try:
@@ -132,7 +131,7 @@ def install_stage1_packages(stage1_root, osgver, dver, basearch):
         finally:
             del yum
     finally:
-        subprocess.call(['umount', procdir])
+        common.umount_proc_in_stage_dir(stage1_root)
 
 
 def verify_stage1_dir(stage_dir):

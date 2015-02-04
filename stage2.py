@@ -13,6 +13,7 @@ import types
 import envsetup
 import yumconf
 
+import common
 from common import statusmsg, errormsg, safe_makedirs, safe_symlink
 
 
@@ -31,10 +32,7 @@ def install_packages(stage_dir, packages, osgver, dver, basearch, prerelease=Fal
         real_newdir = os.path.join(real_stage_dir, newdir)
         safe_makedirs(real_newdir)
 
-    # Mount /proc inside the chroot
-    procdir = os.path.join(real_stage_dir, 'proc')
-    if not os.path.isdir(procdir): os.makedirs(procdir)
-    err = subprocess.call(['mount' , '-t', 'proc', 'proc', procdir])
+    common.mount_proc_in_stage_dir(real_stage_dir)
     try:
 
         yum = yumconf.YumConfig(osgver, dver, basearch, prerelease=prerelease)
@@ -45,7 +43,7 @@ def install_packages(stage_dir, packages, osgver, dver, basearch, prerelease=Fal
             del yum
 
     finally:
-        subprocess.call(['umount', procdir])
+        common.umount_proc_in_stage_dir(real_stage_dir)
 
     # Don't use return code to check for error.  Yum is going to fail due to
     # scriptlets failing (which we can't really do anything about), but not

@@ -1,5 +1,6 @@
 import errno
 import os
+import subprocess
 import sys
 
 
@@ -31,6 +32,17 @@ def safe_symlink(src, dst):
     except OSError as e:
         if e.errno == errno.EEXIST:
             pass
+
+
+def mount_proc_in_stage_dir(stage_dir):
+    procdir = os.path.join(stage_dir, 'proc')
+    safe_makedirs(procdir)
+    return subprocess.call(['mount' , '-t', 'proc', 'proc', procdir])
+
+
+def umount_proc_in_stage_dir(stage_dir):
+    procdir = os.path.join(stage_dir, 'proc')
+    return subprocess.call(['umount', procdir])
 
 
 VALID_METAPACKAGES = ["osg-wn-client", "osg-client"]
