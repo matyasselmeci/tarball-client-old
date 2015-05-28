@@ -31,29 +31,25 @@ def check_yum_priorities():
     return True
 
 def get_repofile(prog_dir, osgver):
-    return os.path.join(prog_dir, 'repos/osg-{0}.repo.in'.format(osgver))
+    return os.path.join(prog_dir, 'repos/ligo-el6.repo.in')
 
-def make_tarball(osgver, basearch, dver, metapackage, patch_dirs, prog_dir, stage_dir, relnum="0", prerelease=False, version=None):
+def make_tarball(osgver, basearch, dver, metapackage, patch_dirs, prog_dir, stage_dir, relnum="0", version=None):
     """Run all the steps to make a non-root tarball.
     Returns (success (bool), tarball_path (relative), tarball_size (in bytes))
 
     """
     repofile = get_repofile(prog_dir, osgver)
 
-    extra_repos = []
-    if prerelease:
-        extra_repos.append("osg-prerelease-for-tarball")
-
-    with yumconf.YumInstaller(repofile, dver, basearch, extra_repos) as yum:
-        version = version or yum.repoquery("osg-version", "--queryformat=%{VERSION}").rstrip() # (false 'unused variable' warning) pylint:disable=W0612
-        tarball_path = "%(metapackage)s-%(version)s-%(relnum)s.%(dver)s.%(basearch)s.tar.gz" % locals()
+    with yumconf.YumInstaller(repofile, dver, basearch) as yum:
+        version = version or '0.1'
+        tarball_path = ("%(metapackage)s-%(version)s-%(relnum)s.%(dver)s.%(basearch)s.tar.gz" % locals()).lstrip('@')
 
         post_scripts_dir = os.path.join(prog_dir, "post-install")
 
         statusmsg("Making stage 2 tarball for %s" % (metapackage))
         if not stage2.make_stage2_tarball(
                 stage_dir        = stage_dir,
-                packages         = ['osg-ca-scripts', metapackage],
+                packages         = metapackage,
                 tarball          = tarball_path,
                 patch_dirs       = patch_dirs,
                 post_scripts_dir = post_scripts_dir,
@@ -61,8 +57,7 @@ def make_tarball(osgver, basearch, dver, metapackage, patch_dirs, prog_dir, stag
                 osgver           = osgver,
                 dver             = dver,
                 basearch         = basearch,
-                relnum           = relnum,
-                extra_repos      = extra_repos):
+                relnum           = relnum):
             errormsg("Making stage 2 tarball for %s unsuccessful. Files have been left in %r" % (metapackage, stage_dir))
             return (False, None, 0)
         tarball_size = os.stat(tarball_path)[6]
@@ -77,21 +72,14 @@ def print_usage(prog_name):
 
 
 def parse_cmdline_args(argv):
-    parser = OptionParser("""
-    %prog [options] --osgver=<osgver> --dver=<dver> --basearch=<basearch>
-or: %prog [options] --osgver=<osgver> --all
-""")
-    parser.add_option("-o", "--osgver", help="OSG Major Version (e.g 3.1). Required.")
+    parser = OptionParser("")
     parser.add_option("--version", default=None, help="Version of the tarball; will be taken from osg-version if not specified")
     parser.add_option("-r", "--relnum", default="1", help="Release number. Default is %default.")
-    parser.add_option("--prerelease", default=True, action="store_true", help="Take packages from the prerelease repository (the default)")
-    parser.add_option("--no-prerelease", "--noprerelease", dest="prerelease", action="store_false", help="Do not take packages from the prerelease repository")
     parser.add_option("-d", "--dver", help="Build tarball for this distro version. Must be one of (" + ", ".join(VALID_DVERS) + ")")
     parser.add_option("-b", "--basearch", help="Build tarball for this base architecture. Must be one of (" + ", ".join(VALID_BASEARCHES) + ")")
     parser.add_option("-a", "--all", default=False, action="store_true", help="Build tarballs for all dver,basearch combinations.")
     parser.add_option("--keep", default=False, action="store_true", help="Keep temp dirs after tarball creation")
-    parser.add_option("--no-full-client", dest="full_client", action="store_false", default=True, help="Do not make the full client")
-    parser.add_option("--no-wn-client", dest="wn_client", action="store_false", default=True, help="Do not make the worker node client")
+    parser.add_option("--osgver", default='3.2')
 
     options, args = parser.parse_args(argv[1:])
 
@@ -101,8 +89,6 @@ or: %prog [options] --osgver=<osgver> --all
         parser.error("--basearch must be in " + ", ".join(VALID_BASEARCHES))
     if not options.all and not (options.dver and options.basearch):
         parser.error("Either --all or --dver and --basearch must be specified.")
-    if not options.osgver:
-        parser.error("--osgver must be specified")
 
     return (options, args)
 
@@ -143,7 +129,6 @@ def main(argv):
                         prog_dir=prog_dir,
                         stage_dir=stage_dir,
                         relnum=options.relnum,
-                        prerelease=options.prerelease,
                         version=options.version)
 
                 if success:
@@ -156,25 +141,19 @@ def main(argv):
             #end _make_tarball_with_paramset
 
             stage_dir_parent = tempfile.mkdtemp(prefix='stagedir-%s-%s-' % (dver, basearch))
-            wn_stage_dir = os.path.join(stage_dir_parent, 'osg-wn-client')
-            full_stage_dir = os.path.join(stage_dir_parent, 'osg-client')
+            lsc_stage_dir = os.path.join(stage_dir_parent, 'tarball')
 
             statusmsg("Making stage 1 dir")
 
             repofile = get_repofile(prog_dir, options.osgver)
-            if not stage1.make_stage1_dir(wn_stage_dir, repofile, dver, basearch):
-                errormsg("Making stage 1 dir unsuccessful. Files have been left in %r" % wn_stage_dir)
+            if not stage1.make_stage1_dir(lsc_stage_dir, repofile, dver, basearch):
+                errormsg("Making stage 1 dir unsuccessful. Files have been left in %r" % lsc_stage_dir)
                 failed_paramsets.append([dver, basearch])
                 continue
 
-            if options.wn_client:
-                if not _make_tarball_with_paramset('osg-wn-client', os.path.join(prog_dir, "patches/wn-client"), wn_stage_dir):
-                    continue
-
-            if options.full_client:
-                shutil.move(wn_stage_dir, full_stage_dir)
-                if not _make_tarball_with_paramset('osg-client', os.path.join(prog_dir, "patches/full-client"), full_stage_dir):
-                    continue
+            #if not _make_tarball_with_paramset('@lscsoft-all', os.path.join(prog_dir, "patches/wn-client"), lsc_stage_dir):
+            if not _make_tarball_with_paramset('glue', os.path.join(prog_dir, "patches/wn-client"), lsc_stage_dir):
+                continue
 
             if not options.keep:
                 statusmsg("Removing temp dirs")

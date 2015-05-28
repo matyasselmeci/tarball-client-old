@@ -282,31 +282,31 @@ def make_stage2_tarball(stage_dir, packages, tarball, patch_dirs, post_scripts_d
         _statusmsg("Installing packages %r" % packages)
         install_packages(stage_dir_abs, packages, repofile, dver, basearch, extra_repos)
 
-        if patch_dirs is not None:
-            if type(patch_dirs) is types.StringType:
-                patch_dirs = [patch_dirs]
+        #if patch_dirs is not None:
+        #    if type(patch_dirs) is types.StringType:
+        #        patch_dirs = [patch_dirs]
 
-            _statusmsg("Patching packages using %r" % patch_dirs)
-            for patch_dir in patch_dirs:
-                patch_installed_packages(stage_dir_abs=stage_dir_abs, patch_dir=patch_dir, dver=dver, osgver=osgver)
+        #    _statusmsg("Patching packages using %r" % patch_dirs)
+        #    for patch_dir in patch_dirs:
+        #        patch_installed_packages(stage_dir_abs=stage_dir_abs, patch_dir=patch_dir, dver=dver, osgver=osgver)
 
-        _statusmsg("Fixing gsissh config dir (if needed)")
-        fix_gsissh_config_dir(stage_dir_abs)
+        #_statusmsg("Fixing gsissh config dir (if needed)")
+        #fix_gsissh_config_dir(stage_dir_abs)
 
-        _statusmsg("Fixing osg-version")
-        fix_osg_version(stage_dir_abs, relnum)
+        #_statusmsg("Fixing osg-version")
+        #fix_osg_version(stage_dir_abs, relnum)
 
-        _statusmsg("Fixing broken cog-axis jar symlink")
-        fix_broken_cog_axis_symlink(stage_dir_abs)
+        #_statusmsg("Fixing broken cog-axis jar symlink")
+        #fix_broken_cog_axis_symlink(stage_dir_abs)
 
         _statusmsg("Fixing broken /etc/alternatives symlinks")
         fix_alternatives_symlinks(stage_dir_abs)
 
-        _statusmsg("Creating fetch-crl symlinks")
-        create_fetch_crl_symlinks(stage_dir_abs, dver)
+        #_statusmsg("Creating fetch-crl symlinks")
+        #create_fetch_crl_symlinks(stage_dir_abs, dver)
 
-        _statusmsg("Copying OSG scripts from %r" % post_scripts_dir)
-        copy_osg_post_scripts(stage_dir_abs, post_scripts_dir, dver, basearch)
+        #_statusmsg("Copying OSG scripts from %r" % post_scripts_dir)
+        #copy_osg_post_scripts(stage_dir_abs, post_scripts_dir, dver, basearch)
 
         _statusmsg("Fixing permissions")
         fix_permissions(stage_dir_abs)
