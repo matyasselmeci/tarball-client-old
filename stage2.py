@@ -27,6 +27,8 @@ def install_packages(stage_dir_abs, packages, repofile, dver, basearch, extra_re
 
     # Check that the packages got installed
     for pkg in packages:
+        if pkg.startswith('@'): # rpm -q doesn't work for groups
+            continue
         err = subprocess.call(["rpm", "--root", stage_dir_abs, "-q", pkg])
         if err:
             raise Error("%r not installed after yum install" % pkg)
