@@ -80,6 +80,7 @@ def parse_cmdline_args(argv):
     parser.add_option("-a", "--all", default=False, action="store_true", help="Build tarballs for all dver,basearch combinations.")
     parser.add_option("--keep", default=False, action="store_true", help="Keep temp dirs after tarball creation")
     parser.add_option("--osgver", default='3.2')
+    parser.add_option("-p", "--package", help="package to install")
 
     options, args = parser.parse_args(argv[1:])
 
@@ -89,6 +90,8 @@ def parse_cmdline_args(argv):
         parser.error("--basearch must be in " + ", ".join(VALID_BASEARCHES))
     if not options.all and not (options.dver and options.basearch):
         parser.error("Either --all or --dver and --basearch must be specified.")
+    if not options.package:
+        parser.error("--package must be specified")
 
     return (options, args)
 
@@ -152,7 +155,7 @@ def main(argv):
                 continue
 
             #if not _make_tarball_with_paramset('@lscsoft-all', os.path.join(prog_dir, "patches/wn-client"), lsc_stage_dir):
-            if not _make_tarball_with_paramset('glue', os.path.join(prog_dir, "patches/wn-client"), lsc_stage_dir):
+            if not _make_tarball_with_paramset(options.package, os.path.join(prog_dir, "patches/wn-client"), lsc_stage_dir):
                 continue
 
             if not options.keep:
