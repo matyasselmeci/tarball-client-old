@@ -30,6 +30,9 @@ libXrender
 libXrandr
 libXcursor
 libXinerama
+# x apps
+xterm
+
 
 # extras from diffing the packages 'Installed for dependencies' for
 # @lscsoft-all versus the package list of a brand-new SLF6 machine
