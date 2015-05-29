@@ -75,44 +75,44 @@ def patch_installed_packages(stage_dir_abs, patch_dirs, dver):
         os.chdir(oldwd)
 
 
-def fix_osg_version(stage_dir_abs, relnum=""):
-    osg_version_path = os.path.join(stage_dir_abs, 'etc/osg-version')
-    version_str = new_version_str = ""
-    _relnum = ""
-    if relnum:
-        _relnum = "-" + str(relnum)
+#def fix_osg_version(stage_dir_abs, relnum=""):
+#    osg_version_path = os.path.join(stage_dir_abs, 'etc/osg-version')
+#    version_str = new_version_str = ""
+#    _relnum = ""
+#    if relnum:
+#        _relnum = "-" + str(relnum)
+#
+#    with open(osg_version_path) as osg_version_fh:
+#        version_str = osg_version_fh.readline()
+#        if not version_str:
+#            raise Error("Could not read version string from %r" % osg_version_path)
+#        if not re.match(r'[0-9.]+', version_str):
+#            raise Error("%r does not contain version" % osg_version_path)
+#
+#        if 'tarball' in version_str:
+#            new_version_str = version_str
+#        else:
+#            new_version_str = re.sub(r'^([0-9.]+)(?!-tarball)', r'\1-tarball%s' % (_relnum), version_str)
+#
+#    with open(osg_version_path, 'w') as osg_version_write_fh:
+#        osg_version_write_fh.write(new_version_str)
 
-    with open(osg_version_path) as osg_version_fh:
-        version_str = osg_version_fh.readline()
-        if not version_str:
-            raise Error("Could not read version string from %r" % osg_version_path)
-        if not re.match(r'[0-9.]+', version_str):
-            raise Error("%r does not contain version" % osg_version_path)
 
-        if 'tarball' in version_str:
-            new_version_str = version_str
-        else:
-            new_version_str = re.sub(r'^([0-9.]+)(?!-tarball)', r'\1-tarball%s' % (_relnum), version_str)
-
-    with open(osg_version_path, 'w') as osg_version_write_fh:
-        osg_version_write_fh.write(new_version_str)
-
-
-def fix_gsissh_config_dir(stage_dir_abs):
-    """A hack to fix gsissh, which looks for $GLOBUS_LOCATION/etc/ssh.
-    The actual files are in $OSG_LOCATION/etc/gsissh, so make a symlink.
-    Make it a relative symlink so we don't have to fix it in post-install.
-
-    """
-    if not os.path.isdir(os.path.join(stage_dir_abs, 'etc/gsissh')):
-        return
-
-    try:
-        usr_etc = os.path.join(stage_dir_abs, 'usr/etc')
-        safe_makedirs(usr_etc)
-        os.symlink('../../etc/gsissh', os.path.join(usr_etc, 'ssh'))
-    except EnvironmentError as err:
-        raise Error("unable to fix gsissh config dir: %s" % str(err))
+#def fix_gsissh_config_dir(stage_dir_abs):
+#    """A hack to fix gsissh, which looks for $GLOBUS_LOCATION/etc/ssh.
+#    The actual files are in $OSG_LOCATION/etc/gsissh, so make a symlink.
+#    Make it a relative symlink so we don't have to fix it in post-install.
+#
+#    """
+#    if not os.path.isdir(os.path.join(stage_dir_abs, 'etc/gsissh')):
+#        return
+#
+#    try:
+#        usr_etc = os.path.join(stage_dir_abs, 'usr/etc')
+#        safe_makedirs(usr_etc)
+#        os.symlink('../../etc/gsissh', os.path.join(usr_etc, 'ssh'))
+#    except EnvironmentError as err:
+#        raise Error("unable to fix gsissh config dir: %s" % str(err))
 
 
 def copy_osg_post_scripts(stage_dir_abs, post_scripts_dir, dver, basearch):
@@ -195,32 +195,32 @@ def tar_stage_dir(stage_dir_abs, tarball):
         raise Error("unable to create tarball (%r) from stage 2 dir (%r)" % (tarball_abs, stage_dir_abs))
 
 
-def fix_broken_cog_axis_symlink(stage_dir_abs):
-    """cog-axis-1.8.0.jar points to cog-jglobus-axis.jar, but is an absolute
-    symlink; replace it with a relative one.
+#def fix_broken_cog_axis_symlink(stage_dir_abs):
+#    """cog-axis-1.8.0.jar points to cog-jglobus-axis.jar, but is an absolute
+#    symlink; replace it with a relative one.
+#
+#    """
+#    cog_axis_path = os.path.join(stage_dir_abs, 'usr/share/java', 'cog-axis-1.8.0.jar')
+#    # using lexists because os.path.exists returns False for a broken symlink
+#    # -- which is what we're expecting
+#    if os.path.lexists(cog_axis_path):
+#        os.remove(cog_axis_path)
+#        os.symlink("cog-jglobus-axis.jar", cog_axis_path)
 
-    """
-    cog_axis_path = os.path.join(stage_dir_abs, 'usr/share/java', 'cog-axis-1.8.0.jar')
-    # using lexists because os.path.exists returns False for a broken symlink
-    # -- which is what we're expecting
-    if os.path.lexists(cog_axis_path):
-        os.remove(cog_axis_path)
-        os.symlink("cog-jglobus-axis.jar", cog_axis_path)
 
-
-def create_fetch_crl_symlinks(stage_dir_abs, dver):
-    """fetch-crl3 on el5 is called fetch-crl on el6. Make symlinks (both ways)
-    to reduce confusion.
-
-    """
-    if 'el5' == dver:
-        safe_symlink('fetch-crl3.conf', os.path.join(stage_dir_abs, 'etc/fetch-crl.conf'))
-        safe_symlink('fetch-crl3', os.path.join(stage_dir_abs, 'usr/sbin/fetch-crl'))
-        safe_symlink('fetch-crl3.8.gz', os.path.join(stage_dir_abs, 'usr/share/man/man8/fetch-crl.8.gz'))
-    elif 'el6' == dver:
-        safe_symlink('fetch-crl.conf', os.path.join(stage_dir_abs, 'etc/fetch-crl3.conf'))
-        safe_symlink('fetch-crl', os.path.join(stage_dir_abs, 'usr/sbin/fetch-crl3'))
-        safe_symlink('fetch-crl.8.gz', os.path.join(stage_dir_abs, 'usr/share/man/man8/fetch-crl3.8.gz'))
+#def create_fetch_crl_symlinks(stage_dir_abs, dver):
+#    """fetch-crl3 on el5 is called fetch-crl on el6. Make symlinks (both ways)
+#    to reduce confusion.
+#
+#    """
+#    if 'el5' == dver:
+#        safe_symlink('fetch-crl3.conf', os.path.join(stage_dir_abs, 'etc/fetch-crl.conf'))
+#        safe_symlink('fetch-crl3', os.path.join(stage_dir_abs, 'usr/sbin/fetch-crl'))
+#        safe_symlink('fetch-crl3.8.gz', os.path.join(stage_dir_abs, 'usr/share/man/man8/fetch-crl.8.gz'))
+#    elif 'el6' == dver:
+#        safe_symlink('fetch-crl.conf', os.path.join(stage_dir_abs, 'etc/fetch-crl3.conf'))
+#        safe_symlink('fetch-crl', os.path.join(stage_dir_abs, 'usr/sbin/fetch-crl3'))
+#        safe_symlink('fetch-crl.8.gz', os.path.join(stage_dir_abs, 'usr/share/man/man8/fetch-crl3.8.gz'))
 
 
 def fix_alternatives_symlinks(stage_dir_abs):
@@ -287,20 +287,20 @@ def make_stage2_tarball(stage_dir, packages, tarball, patch_dirs, post_scripts_d
             _statusmsg("Patching packages using %r" % patch_dirs)
             patch_installed_packages(stage_dir_abs=stage_dir_abs, patch_dirs=patch_dirs, dver=dver)
 
-        _statusmsg("Fixing gsissh config dir (if needed)")
-        fix_gsissh_config_dir(stage_dir_abs)
+        #_statusmsg("Fixing gsissh config dir (if needed)")
+        #fix_gsissh_config_dir(stage_dir_abs)
 
-        _statusmsg("Fixing osg-version")
-        fix_osg_version(stage_dir_abs, relnum)
+        #_statusmsg("Fixing osg-version")
+        #fix_osg_version(stage_dir_abs, relnum)
 
-        _statusmsg("Fixing broken cog-axis jar symlink")
-        fix_broken_cog_axis_symlink(stage_dir_abs)
+        #_statusmsg("Fixing broken cog-axis jar symlink")
+        #fix_broken_cog_axis_symlink(stage_dir_abs)
 
         _statusmsg("Fixing broken /etc/alternatives symlinks")
         fix_alternatives_symlinks(stage_dir_abs)
 
-        _statusmsg("Creating fetch-crl symlinks")
-        create_fetch_crl_symlinks(stage_dir_abs, dver)
+        #_statusmsg("Creating fetch-crl symlinks")
+        #create_fetch_crl_symlinks(stage_dir_abs, dver)
 
         _statusmsg("Copying OSG scripts from %r" % post_scripts_dir)
         copy_osg_post_scripts(stage_dir_abs, post_scripts_dir, dver, basearch)

@@ -144,47 +144,47 @@ def fix_osg_location_in_file(file_path, osg_location):
             file_fh.close()
 
 
-def fix_osg_location_in_fetch_crl(staging_dir, final_osg_location):
-    """Write the final OSG_LOCATION directory into the fetch-crl config
-    files under the staging dir.
+#def fix_osg_location_in_fetch_crl(staging_dir, final_osg_location):
+#    """Write the final OSG_LOCATION directory into the fetch-crl config
+#    files under the staging dir.
+#
+#    """
+#    abs_staging_dir = os.path.abspath(staging_dir)
+#    etc = os.path.join(abs_staging_dir, 'etc')
+#
+#    print_nonl("Updating fetch-crl config file(s)")
+#    confs = glob.glob(os.path.join(etc, "fetch-crl.conf")) + glob.glob(os.path.join(etc, "fetch-crl3.conf"))
+#    if not confs:
+#        failure("fetch-crl.conf / fetch-crl3.conf not found in %r" % etc)
+#        return
+#    # dereference symlinks
+#    confs_real = set([os.path.realpath(x) for x in confs])
+#    try:
+#        # fix each file only once
+#        for in_path in confs_real:
+#            fix_osg_location_in_file(in_path, final_osg_location)
+#        success()
+#    except EnvironmentError, err:
+#        failure("Unable to fix fetch-crl config file(s) for the following reason:\n%s" % str(err))
 
-    """
-    abs_staging_dir = os.path.abspath(staging_dir)
-    etc = os.path.join(abs_staging_dir, 'etc')
 
-    print_nonl("Updating fetch-crl config file(s)")
-    confs = glob.glob(os.path.join(etc, "fetch-crl.conf")) + glob.glob(os.path.join(etc, "fetch-crl3.conf"))
-    if not confs:
-        failure("fetch-crl.conf / fetch-crl3.conf not found in %r" % etc)
-        return
-    # dereference symlinks
-    confs_real = set([os.path.realpath(x) for x in confs])
-    try:
-        # fix each file only once
-        for in_path in confs_real:
-            fix_osg_location_in_file(in_path, final_osg_location)
-        success()
-    except EnvironmentError, err:
-        failure("Unable to fix fetch-crl config file(s) for the following reason:\n%s" % str(err))
-
-
-def fix_osg_location_in_sysconfig_bestman2(staging_dir, final_osg_location):
-    """Write the final OSG_LOCATION directory into the sysconfig file
-    for bestman2 under the staging dir.
-
-    """
-    sysconfig_path = os.path.join(staging_dir, 'etc/sysconfig/bestman2')
-
-    print_nonl("Updating BeSTMan2 sysconfig file")
-
-    if not os.path.exists(sysconfig_path):
-        failure("%r not found" % sysconfig_path)
-        return
-    try:
-        fix_osg_location_in_file(sysconfig_path, final_osg_location)
-        success()
-    except EnvironmentError, err:
-        failure("Unable to fix BeSTMan2 sysconfig file for the following reason:\n%s" % str(err))
+#def fix_osg_location_in_sysconfig_bestman2(staging_dir, final_osg_location):
+#    """Write the final OSG_LOCATION directory into the sysconfig file
+#    for bestman2 under the staging dir.
+#
+#    """
+#    sysconfig_path = os.path.join(staging_dir, 'etc/sysconfig/bestman2')
+#
+#    print_nonl("Updating BeSTMan2 sysconfig file")
+#
+#    if not os.path.exists(sysconfig_path):
+#        failure("%r not found" % sysconfig_path)
+#        return
+#    try:
+#        fix_osg_location_in_file(sysconfig_path, final_osg_location)
+#        success()
+#    except EnvironmentError, err:
+#        failure("Unable to fix BeSTMan2 sysconfig file for the following reason:\n%s" % str(err))
 
 
 def parse_cmdline_args(argv):
@@ -257,8 +257,8 @@ def main(argv):
 
     write_setup_from_templates(staging_dir, final_osg_location)
     write_setup_local_files(staging_dir)
-    fix_osg_location_in_fetch_crl(staging_dir, final_osg_location)
-    fix_osg_location_in_sysconfig_bestman2(staging_dir, final_osg_location)
+    #fix_osg_location_in_fetch_crl(staging_dir, final_osg_location)
+    #fix_osg_location_in_sysconfig_bestman2(staging_dir, final_osg_location)
     return 0
 
 if __name__ == "__main__":
