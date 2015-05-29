@@ -115,17 +115,17 @@ def patch_installed_packages(stage_dir_abs, patch_dirs, dver):
 #        raise Error("unable to fix gsissh config dir: %s" % str(err))
 
 
-def copy_osg_post_scripts(stage_dir_abs, post_scripts_dir, dver, basearch):
-    """Copy osg scripts from post_scripts_dir to the stage2 directory"""
+def copy_lsc_post_scripts(stage_dir_abs, post_scripts_dir, dver, basearch):
+    """Copy lsc scripts from post_scripts_dir to the stage2 directory"""
 
     if not os.path.isdir(post_scripts_dir):
         raise Error("script directory (%r) not found" % post_scripts_dir)
 
     post_scripts_dir_abs = os.path.abspath(post_scripts_dir)
-    dest_dir = os.path.join(stage_dir_abs, "osg")
+    dest_dir = os.path.join(stage_dir_abs, "lsc")
     safe_makedirs(dest_dir)
 
-    for script_name in 'osg-post-install', 'osgrun.in':
+    for script_name in 'lsc-post-install', 'lscrun.in':
         script_path = os.path.join(post_scripts_dir_abs, script_name)
         dest_path = os.path.join(dest_dir, script_name)
         try:
@@ -302,8 +302,8 @@ def make_stage2_tarball(stage_dir, packages, tarball, patch_dirs, post_scripts_d
         #_statusmsg("Creating fetch-crl symlinks")
         #create_fetch_crl_symlinks(stage_dir_abs, dver)
 
-        _statusmsg("Copying OSG scripts from %r" % post_scripts_dir)
-        copy_osg_post_scripts(stage_dir_abs, post_scripts_dir, dver, basearch)
+        _statusmsg("Copying LSC scripts from %r" % post_scripts_dir)
+        copy_lsc_post_scripts(stage_dir_abs, post_scripts_dir, dver, basearch)
 
         _statusmsg("Fixing permissions")
         fix_permissions(stage_dir_abs)

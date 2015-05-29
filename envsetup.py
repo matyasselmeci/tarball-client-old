@@ -55,51 +55,51 @@ def write_setup_in_files(dest_dir, dver, basearch):
 
     if basearch == 'i386':
         osg_ld_library_path = ":".join([
-            "$OSG_LOCATION/usr/lib",
-            "$OSG_LOCATION/usr/lib/dcap",
-            "$OSG_LOCATION/usr/lib/lcgdm"])
+            "$LSC_LOCATION/usr/lib",
+            "$LSC_LOCATION/usr/lib/dcap",
+            "$LSC_LOCATION/usr/lib/lcgdm"])
     elif basearch == 'x86_64':
         osg_ld_library_path = ":".join([
-            "$OSG_LOCATION/usr/lib64",
-            "$OSG_LOCATION/usr/lib", # search 32-bit libs too
-            "$OSG_LOCATION/usr/lib64/dcap",
-            "$OSG_LOCATION/usr/lib64/lcgdm"])
+            "$LSC_LOCATION/usr/lib64",
+            "$LSC_LOCATION/usr/lib", # search 32-bit libs too
+            "$LSC_LOCATION/usr/lib64/dcap",
+            "$LSC_LOCATION/usr/lib64/lcgdm"])
     else:
         raise Exception("Unknown basearch %r" % basearch)
 
     if dver == 'el5':
-        osg_perl5lib = "$OSG_LOCATION/usr/lib/perl5/vendor_perl/5.8.8"
+        osg_perl5lib = "$LSC_LOCATION/usr/lib/perl5/vendor_perl/5.8.8"
         if basearch == 'x86_64':
-            osg_perl5lib += ":$OSG_LOCATION/usr/lib64/perl5/vendor_perl/5.8.8"
+            osg_perl5lib += ":$LSC_LOCATION/usr/lib64/perl5/vendor_perl/5.8.8"
     elif dver == 'el6':
         osg_perl5lib = ":".join([
-            "$OSG_LOCATION/usr/share/perl5/vendor_perl",
-            "$OSG_LOCATION/usr/share/perl5"])
+            "$LSC_LOCATION/usr/share/perl5/vendor_perl",
+            "$LSC_LOCATION/usr/share/perl5"])
         if basearch == 'x86_64':
-            osg_perl5lib += ":$OSG_LOCATION/usr/lib64/perl5/vendor_perl"
-            osg_perl5lib += ":$OSG_LOCATION/usr/lib64/perl5"
+            osg_perl5lib += ":$LSC_LOCATION/usr/lib64/perl5/vendor_perl"
+            osg_perl5lib += ":$LSC_LOCATION/usr/lib64/perl5"
     else:
         raise Exception("Unknown dver %r" % dver)
 
     # Arch-independent python stuff always goes in usr/lib/, even on x86_64
     if dver == 'el5':
-        osg_pythonpath = "$OSG_LOCATION/usr/lib/python2.4/site-packages"
+        osg_pythonpath = "$LSC_LOCATION/usr/lib/python2.4/site-packages"
         if basearch == 'x86_64':
-            osg_pythonpath += ":$OSG_LOCATION/usr/lib64/python2.4/site-packages"
+            osg_pythonpath += ":$LSC_LOCATION/usr/lib64/python2.4/site-packages"
     elif dver == 'el6':
-        osg_pythonpath = "$OSG_LOCATION/usr/lib/python2.6/site-packages"
+        osg_pythonpath = "$LSC_LOCATION/usr/lib/python2.6/site-packages"
         if basearch == 'x86_64':
-            osg_pythonpath += ":$OSG_LOCATION/usr/lib64/python2.6/site-packages"
+            osg_pythonpath += ":$LSC_LOCATION/usr/lib64/python2.6/site-packages"
     else:
         raise Exception("Unknown dver %r" % dver)
 
-    osg_manpath = "$OSG_LOCATION/usr/share/man"
+    osg_manpath = "$LSC_LOCATION/usr/share/man"
 
 
     for sh in 'csh', 'sh':
         dest_path = os.path.join(dest_dir, 'setup.%s.in' % sh)
         text_to_write = "# Source this file if using %s or a shell derived from it\n" % sh
-        setup_local = "$OSG_LOCATION/setup-local.%s" % sh
+        setup_local = "$LSC_LOCATION/setup-local.%s" % sh
 
         _setenv     = shell_construct[sh]['setenv']
         _ifdef      = shell_construct[sh]['ifdef']
@@ -108,15 +108,15 @@ def write_setup_in_files(dest_dir, dver, basearch):
         _ifreadable = shell_construct[sh]['ifreadable']
         _source     = shell_construct[sh]['source']
 
-        # Set OSG_LOCATION first because all the other variables depend on it
-        text_to_write += _setenv("OSG_LOCATION", "@@OSG_LOCATION@@")
+        # Set LSC_LOCATION first because all the other variables depend on it
+        text_to_write += _setenv("LSC_LOCATION", "@@LSC_LOCATION@@")
 
         for variable, value in [
-                ("GLOBUS_LOCATION", "$OSG_LOCATION/usr"),
-                ("PATH",            "$OSG_LOCATION/usr/bin:$OSG_LOCATION/usr/sbin:$PATH"),
-                ("X509_CERT_DIR",   "$OSG_LOCATION/etc/grid-security/certificates"),
-                ("X509_VOMS_DIR",   "$OSG_LOCATION/etc/grid-security/vomsdir"),
-                ("VOMS_USERCONF",   "$OSG_LOCATION/etc/vomses")]:
+                ("GLOBUS_LOCATION", "$LSC_LOCATION/usr"),
+                ("PATH",            "$LSC_LOCATION/usr/bin:$LSC_LOCATION/usr/sbin:$PATH"),
+                ("X509_CERT_DIR",   "$LSC_LOCATION/etc/grid-security/certificates"),
+                ("X509_VOMS_DIR",   "$LSC_LOCATION/etc/grid-security/vomsdir"),
+                ("VOMS_USERCONF",   "$LSC_LOCATION/etc/vomses")]:
 
             text_to_write += _setenv(variable, value)
 
