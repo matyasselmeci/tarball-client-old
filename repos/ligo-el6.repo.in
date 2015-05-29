@@ -1,0 +1,46 @@
+[LDG_SL6.1-base-tarball]
+name=LDG_SL6.1 - %(basearch)s
+baseurl=http://www.lsc-group.phys.uwm.edu/linux/scientific/6x/%(basearch)s/os/
+enabled=1
+gpgcheck=1
+gpgkey=http://www.lsc-group.phys.uwm.edu/linux/scientific/6x/x86_64/os/RPM-GPG-KEY-sl
+       http://www.lsc-group.phys.uwm.edu/linux/scientific/6x/x86_64/os/RPM-GPG-KEY-sl6
+
+[LDG_SL6.1-securityupdates-tarball]
+# This section will retrieve the Security Updates
+name=LDG_SL6.1_SecUps - %(basearch)s
+baseurl=http://ftp.scientificlinux.org/linux/scientific/6.1/%(basearch)s/updates/security/
+       http://ftp1.scientificlinux.org/linux/scientific/6.1/%(basearch)s/updates/security/
+       http://ftp2.scientificlinux.org/linux/scientific/6.1/%(basearch)s/updates/security/
+       ftp://ftp.scientificlinux.org/linux/scientific/6.1/%(basearch)s/updates/security/
+enabled=1
+gpgcheck=1
+gpgkey=file:///etc/pki/rpm-gpg/RPM-GPG-KEY-sl file:///etc/pki/rpm-gpg/RPM-GPG-KEY-sl6 file:///etc/pki/rpm-gpg/RPM-GPG-KEY-cern
+
+
+[LDG_EPEL6-tarball]
+name=LDG_EPEL6 - %(basearch)s
+baseurl=http://www.lsc-group.phys.uwm.edu/epel/6/%(basearch)s
+failovermethod=priority
+enabled=1
+gpgcheck=1
+gpgkey=http://www.lsc-group.phys.uwm.edu/daswg/download/software/scientificlinux/RPM-GPG-KEY-EPEL-6
+
+[lscsoft-tarball]
+name=LSC Data Analysis Software
+baseurl=http://software.ligo.org/lscsoft/scientificlinux/6.1/%(basearch)s/
+enabled=1
+gpgcheck=1
+gpgkey=http://software.ligo.org/lscsoft/scientificlinux/RPM-GPG-KEY-LSCSOFT
+
+[osg-3.2-tarball]
+name=OSG 3.2 Software for Enterprise Linux 6 - %(basearch)s
+#baseurl=http://repo.grid.iu.edu/osg/3.2/el6/release/%(basearch)s
+mirrorlist=http://repo.grid.iu.edu/mirror/osg/3.2/el6/release/%(basearch)s
+failovermethod=priority
+priority=98
+enabled=1
+gpgcheck=1
+gpgkey=http://repo.grid.iu.edu/osg/3.2/RPM-GPG-KEY-OSG
+includepkgs=condor* blahp
+
