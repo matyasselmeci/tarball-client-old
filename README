@@ -1,8 +1,24 @@
 Usage:
-    make-client-tarball --osgver <3.1|3.2> --all
-will make the whole set of nonroot tarballs.
-    make-client-tarball --osgver <3.1|3.2> --dver <el5|el6> --basearch <i386|x86_64>
-Should be done on an el6 x86_64 box.
+    make-client-tarball --bundle=lscsoft-all -a --version=1.0
+will make the tarball for @lscsoft-all.
 
-Took about 20 minutes last time I ran it.
+Should be done on an el6+ x86_64 box.
+
+Took about 15 minutes last time I ran it.
+
+Add patches to a 'patches/ligo' directory.  Patches are applied with -p1 to the
+root dir of the tarball.  Other fixes should be put into stage2.py.  Changes to
+the environment scripts (setup.sh) should be made in envsetup.py.
+
+"Stage 1" packages are packages that are installed into the tarball directory
+as it is being built, but are excluded from the final tarball.  These are
+libraries and programs that everybody should already have on their system, e.g.
+bash.  Edit ligo-stage1.lst to add or remove packages from the stage 1 list.
+
+"Stage 2" packages are packages that make up the software in the tarball.
+Edit the 'packages' lines in bundles.ini to define the list of stage 2
+packages.  yum group names are preceded by '@', e.g. '@lscsoft-all'.
+
+A bundle is defined in bundles.ini and consists of the packages, patches, etc.
+that make up a kind of tarball, e.g. osg-wn-client-3.2 or lscsoft-all.
 
