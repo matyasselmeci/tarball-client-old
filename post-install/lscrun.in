@@ -1,16 +1,16 @@
-#!/bin/sh
+#!/bin/bash
 #
-# osgrun is a utility script for the tarball client. It allows you to run a
+# lscrun is a utility script for the tarball client. It allows you to run a
 # single command using the LSC environment. Users should copy or symlink this
 # into $HOME/bin or some location in their $PATH that they have control over.
 #
 # Example use:
 #
-# osgrun grid-proxy-init
-# osgrun globus-job-run localhost /usr/bin/id
+# lscrun grid-proxy-init
+# lscrun globus-job-run localhost /usr/bin/id
 #
 # You can also launch a shell, for example:
-# osgrun /bin/bash
+# lscrun /bin/bash
 # The shell will then have the LSC environment inside.
 #
 LSC_LOCATION="@@LSC_LOCATION@@"
@@ -18,10 +18,10 @@ LSC_LOCATION="@@LSC_LOCATION@@"
     echo "$LSC_LOCATION not found or not a directory"
     exit -2
 }
-[ ! -r "$LSC_LOCATION/setup.sh" ] && {
-    echo "$LSC_LOCATION/setup.sh not found or not readable"
+[ ! -r "$LSC_LOCATION/setup-reloc.sh" ] && {
+    echo "$LSC_LOCATION/setup-reloc.sh not found or not readable"
     exit -2
 }
-. "$LSC_LOCATION/setup.sh" && \
+. "$LSC_LOCATION/setup-reloc.sh" && \
     exec "$@"
 
